@@ -58,11 +58,11 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 #Modify Dates
-# start_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
-# end_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
+start_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
+end_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
 
-start_time = 20250207
-end_time = 20250207
+# start_time = 20250207
+# end_time = 20250207
 
 st = get_time(f'{str(start_time)[:4]}-{str(start_time)[4:6]}-{str(start_time)[6:]} 01:00:00')
 et = get_time(f'{str(end_time)[:4]}-{str(end_time)[4:6]}-{str(end_time)[6:]} 23:59:00')
