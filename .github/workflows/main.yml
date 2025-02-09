@@ -2,8 +2,8 @@ name: Automate Shoonya Data Download
 
 on:
   schedule:
-    - cron: "30 11 * * 1-5"  # Runs at 8:30 PM IST (14:30 UTC)
-  workflow_dispatch:  # Enables manual execution
+    - cron: "30 11 * * 1-5"  # Runs at 5:00 PM IST (11:30 AM UTC)
+  workflow_dispatch:  # 👈 This enables the "Run Workflow" button
 
 jobs:
   run-script:
@@ -18,13 +18,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install pandas pyotp requests tqdm zipfile36 os-sys io time
-          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-          pip install NorenRestApiPy concurrent.futures threading warnings datetime
-      
-      - name: Create service_account.json file
-        run: echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+        run: pip install pandas pyotp google-auth google-auth-oauthlib google-auth-httplib2 googleapiclient requests NorenRestApiPy
 
       - name: Run Data_Download.py
         env:
