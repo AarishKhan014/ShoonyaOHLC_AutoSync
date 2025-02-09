@@ -21,15 +21,15 @@ warnings.filterwarnings('ignore')
 
 # def fetch_options(start_time, end_time):
 #Logging
-usercred = pd.read_excel(rf'C:\My Data\Python Work\Shoonya Api\\Login_Cred(Himanshu).xlsx')
+# usercred = pd.read_excel(rf'C:\My Data\Python Work\Shoonya Api\\Login_Cred(Himanshu).xlsx')
 
-user = usercred.iloc[0, 0]
-pwd = usercred.iloc[0, 1]
-vc = usercred.iloc[0, 2]
-app_key = usercred.iloc[0, 3]
-imei = usercred.iloc[0, 4]
-qr = usercred.iloc[0, 5]
-factor2 = pyotp.TOTP(qr).now()
+USER = os.getenv("SHOONYA_USER")
+PWD = os.getenv("SHOONYA_PWD")
+VC = os.getenv("SHOONYA_VC")
+APP_KEY = os.getenv("SHOONYA_APP_KEY")
+IMEI = os.getenv("SHOONYA_IMEI")
+QR_SECRET = os.getenv("SHOONYA_QR")
+FACTOR2 = pyotp.TOTP(QR_SECRET).now()
 
 
 #Defining Class, Modules And Login
@@ -42,7 +42,9 @@ class ShoonyaApiPy(NorenApi):
 import logging
 logging.basicConfig(level=logging.DEBUG)
 api = ShoonyaApiPy()
-ret = api.login(userid=user, password=pwd, twoFA=factor2, vendor_code=vc, api_secret=app_key, imei=imei)
+ret = api.login(userid=USER, password=PWD, twoFA=FACTOR2, vendor_code=VC, api_secret=APP_KEY, imei=IMEI)
+
+print("✅ Successfully logged in to Shoonya API")
 
 def get_time (time_string):
     data = time.strptime(time_string, "%Y-%m-%d %H:%M:%S")
@@ -230,14 +232,14 @@ file_name = datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%
 
 
 # 🔹 Load Google Service Account Credentials
-SERVICE_ACCOUNT_FILE = rf"C:\My Data\Python Work\Historical Data\service_account.json"  # Path to your JSON key file
+SERVICE_ACCOUNT_FILE = os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON")  # Path to your JSON key file
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 
 creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 service = build("drive", "v3", credentials=creds)
 
 # 🔹 Your Google Drive Folder ID
-FOLDER_ID = "1uXV_ofXXeNGe0LzwAUFdKDLXd770PTXP"  # Replace with your actual Folder ID
+FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID")  # Replace with your actual Folder ID
 
 def upload_dataframe_to_drive(df, file_name):
     """Uploads a Pandas DataFrame as a CSV directly to Google Drive without saving locally"""
