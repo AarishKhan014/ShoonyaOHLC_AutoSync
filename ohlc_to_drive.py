@@ -94,132 +94,132 @@ spot_df['Strike_Price'] = None
 spot_df['Expiry_Date'] = None
 spot_df = spot_df[['Ticker', 'Date', 'Time', 'Days', 'Name', 'Datetime', 'Type', 'Strike_Price', 'Expiry_Date', 'Open', 'High', 'Low', 'Close', 'OI', 'Volume']]
 
-print ('------------------')
-print ('------------------')
-print ('------------------')
-print ('------------------')
-print (f"***********Working For Date {str(start_time)[6:]}-{str(start_time)[4:6]}-{str(start_time)[:4]}***********")
-print (f'✅Spot Downloaded..!!')
-print (f'Size = {len(spot_df)}Rows')
-print ('------------------')
+# print ('------------------')
+# print ('------------------')
+# print ('------------------')
+# print ('------------------')
+# print (f"***********Working For Date {str(start_time)[6:]}-{str(start_time)[4:6]}-{str(start_time)[:4]}***********")
+# print (f'✅Spot Downloaded..!!')
+# print (f'Size = {len(spot_df)}Rows')
+# print ('------------------')
 
-#Downloading Master Symbols
-url = "https://api.shoonya.com/NFO_symbols.txt.zip"
-directory = rf"C:\My Data\Python Work\Historical Data"
+# #Downloading Master Symbols
+# url = "https://api.shoonya.com/NFO_symbols.txt.zip"
+# directory = rf"C:\My Data\Python Work\Historical Data"
 
-os.makedirs(directory, exist_ok=True)
+# os.makedirs(directory, exist_ok=True)
 
-zip_filepath = os.path.join(directory, "file.zip")
-with open(zip_filepath, "wb") as f:
-    f.write(requests.get(url).content)
+# zip_filepath = os.path.join(directory, "file.zip")
+# with open(zip_filepath, "wb") as f:
+#     f.write(requests.get(url).content)
 
-with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
-    zip_ref.extractall(directory)
+# with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
+#     zip_ref.extractall(directory)
 
-file = pd.read_csv(os.path.join(directory, "NFO_symbols.txt"))
+# file = pd.read_csv(os.path.join(directory, "NFO_symbols.txt"))
 
-os.remove(zip_filepath)
-os.remove(os.path.join(directory, "NFO_symbols.txt"))
+# os.remove(zip_filepath)
+# os.remove(os.path.join(directory, "NFO_symbols.txt"))
 
-file = file[file['Symbol'] == 'NIFTY']
-file['Expiry'] = file['Expiry'].apply (lambda x: datetime.strptime(x, "%d-%b-%Y"))
+# file = file[file['Symbol'] == 'NIFTY']
+# file['Expiry'] = file['Expiry'].apply (lambda x: datetime.strptime(x, "%d-%b-%Y"))
 
-#Extracting Options Downloadable Dataframe
-fut_df = file[file['Instrument'] == 'FUTIDX']
-fut_df.sort_values(by='Expiry', inplace=True)
-fut_df["Ticker"] = [f"NIFTY-{i*'I'}" for i in range(1, len(fut_df)+1)]
-current_month = fut_df['Expiry'].min()
-mid = (((spot_df['High'].astype(float).max() + spot_df['Low'].astype(float).min()) / 2) // 50) * 50
-maxx = mid+(50*40)
-minn = mid-(50*40)
+# #Extracting Options Downloadable Dataframe
+# fut_df = file[file['Instrument'] == 'FUTIDX']
+# fut_df.sort_values(by='Expiry', inplace=True)
+# fut_df["Ticker"] = [f"NIFTY-{i*'I'}" for i in range(1, len(fut_df)+1)]
+# current_month = fut_df['Expiry'].min()
+# mid = (((spot_df['High'].astype(float).max() + spot_df['Low'].astype(float).min()) / 2) // 50) * 50
+# maxx = mid+(50*40)
+# minn = mid-(50*40)
 
-opt_df = file[((file['Expiry'] <= current_month) | (file['Expiry'].isin(fut_df[fut_df['Expiry'] != fut_df['Expiry'].min()]['Expiry']))) & (file['Expiry'] >= (datetime.strptime(str(date.today()), "%Y-%m-%d"))) & (file['StrikePrice'] >= minn) & (file['StrikePrice'] <= maxx)]
-opt_df.reset_index(drop=True, inplace=True) 
+# opt_df = file[((file['Expiry'] <= current_month) | (file['Expiry'].isin(fut_df[fut_df['Expiry'] != fut_df['Expiry'].min()]['Expiry']))) & (file['Expiry'] >= (datetime.strptime(str(date.today()), "%Y-%m-%d"))) & (file['StrikePrice'] >= minn) & (file['StrikePrice'] <= maxx)]
+# opt_df.reset_index(drop=True, inplace=True) 
 
 
-#Downloading OPTIONS Data
-options_df = pd.DataFrame()
+# #Downloading OPTIONS Data
+# options_df = pd.DataFrame()
 
-progress_bar = tqdm(total=len(opt_df), desc="Downloading Options Data", dynamic_ncols=True, position=0, leave=True)
-for idx, rows in opt_df.iterrows():
-    sys.stdout.write(f"\rProcessing Index: {idx}/{len(opt_df)} | Token: {rows['Token']} | Symbol: {rows['TradingSymbol']}  ")
-    sys.stdout.flush()
+# progress_bar = tqdm(total=len(opt_df), desc="Downloading Options Data", dynamic_ncols=True, position=0, leave=True)
+# for idx, rows in opt_df.iterrows():
+#     sys.stdout.write(f"\rProcessing Index: {idx}/{len(opt_df)} | Token: {rows['Token']} | Symbol: {rows['TradingSymbol']}  ")
+#     sys.stdout.flush()
     
-    ret = api.get_time_price_series(exchange=rows['Exchange'], token=str(rows['Token']), starttime=st, endtime=et, interval=1)
+#     ret = api.get_time_price_series(exchange=rows['Exchange'], token=str(rows['Token']), starttime=st, endtime=et, interval=1)
     
-    if ret and len(ret) == 375:
-        tempdf = pd.DataFrame.from_dict(ret)
+#     if ret and len(ret) == 375:
+#         tempdf = pd.DataFrame.from_dict(ret)
 
-        tempdf['Ticker'] = rows['TradingSymbol']
-        tempdf['Date'] = tempdf['time'].apply(lambda x: x.split(' ')[0])
-        tempdf['Time'] = tempdf['time'].apply(lambda x: x.split(' ')[-1])
-        tempdf['Days'] = tempdf['Date'].apply(lambda x: datetime.strptime(x, "%d-%m-%Y").strftime('%A'))
-        tempdf['Name'] = 'NIFTY'
-        tempdf.rename(columns={'time': 'Datetime'}, inplace=True)
+#         tempdf['Ticker'] = rows['TradingSymbol']
+#         tempdf['Date'] = tempdf['time'].apply(lambda x: x.split(' ')[0])
+#         tempdf['Time'] = tempdf['time'].apply(lambda x: x.split(' ')[-1])
+#         tempdf['Days'] = tempdf['Date'].apply(lambda x: datetime.strptime(x, "%d-%m-%Y").strftime('%A'))
+#         tempdf['Name'] = 'NIFTY'
+#         tempdf.rename(columns={'time': 'Datetime'}, inplace=True)
 
-        if tempdf['Ticker'].iloc[0][-6:-5] == 'P':
-            tempdf['Type'] = 'PE'
-            tempdf['Strike_Price'] = tempdf['Ticker'].iloc[0][-5:]
-            tempdf['Expiry_Date'] = rows['Expiry']
+#         if tempdf['Ticker'].iloc[0][-6:-5] == 'P':
+#             tempdf['Type'] = 'PE'
+#             tempdf['Strike_Price'] = tempdf['Ticker'].iloc[0][-5:]
+#             tempdf['Expiry_Date'] = rows['Expiry']
 
-        elif tempdf['Ticker'].iloc[0][-6:-5] == 'C':
-            tempdf['Type'] = 'CE'
-            tempdf['Strike_Price'] = tempdf['Ticker'].iloc[0][-5:]
-            tempdf['Expiry_Date'] = rows['Expiry']
+#         elif tempdf['Ticker'].iloc[0][-6:-5] == 'C':
+#             tempdf['Type'] = 'CE'
+#             tempdf['Strike_Price'] = tempdf['Ticker'].iloc[0][-5:]
+#             tempdf['Expiry_Date'] = rows['Expiry']
 
-        tempdf.rename(columns={'into': 'Open', 'inth': 'High', 'intl': 'Low', 'intc': 'Close', 'oi': 'OI', 'v': 'Volume'}, inplace=True)
-        tempdf = tempdf[['Ticker', 'Date', 'Time', 'Days', 'Name', 'Datetime', 'Type', 'Strike_Price', 'Expiry_Date', 'Open', 'High', 'Low', 'Close', 'OI', 'Volume']]
-        tempdf['Time'] = tempdf['Time'].apply(lambda x: datetime.strptime(x, "%H:%M:%S").time())
+#         tempdf.rename(columns={'into': 'Open', 'inth': 'High', 'intl': 'Low', 'intc': 'Close', 'oi': 'OI', 'v': 'Volume'}, inplace=True)
+#         tempdf = tempdf[['Ticker', 'Date', 'Time', 'Days', 'Name', 'Datetime', 'Type', 'Strike_Price', 'Expiry_Date', 'Open', 'High', 'Low', 'Close', 'OI', 'Volume']]
+#         tempdf['Time'] = tempdf['Time'].apply(lambda x: datetime.strptime(x, "%H:%M:%S").time())
 
-        tempdf.sort_values(by='Time', inplace=True)
-        options_df = pd.concat([options_df, tempdf])
+#         tempdf.sort_values(by='Time', inplace=True)
+#         options_df = pd.concat([options_df, tempdf])
 
-    progress_bar.update(1)
+#     progress_bar.update(1)
 
-progress_bar.close()
-print("\n✅ Options Data Downloaded..!!")
-print ('------------------')
+# progress_bar.close()
+# print("\n✅ Options Data Downloaded..!!")
+# print ('------------------')
 
 
-#Downloading Futures Data
-futures_df = pd.DataFrame()
+# #Downloading Futures Data
+# futures_df = pd.DataFrame()
 
-for idx, rows in fut_df.iterrows():
-    ret = api.get_time_price_series(exchange=rows['Exchange'], token=str(rows['Token']), starttime=st, endtime=et, interval=1)
-    tempdf = pd.DataFrame.from_dict(ret)
+# for idx, rows in fut_df.iterrows():
+#     ret = api.get_time_price_series(exchange=rows['Exchange'], token=str(rows['Token']), starttime=st, endtime=et, interval=1)
+#     tempdf = pd.DataFrame.from_dict(ret)
 
-    if ret and len(ret) == 375:
-        tempdf = pd.DataFrame.from_dict(ret)
+#     if ret and len(ret) == 375:
+#         tempdf = pd.DataFrame.from_dict(ret)
 
-        tempdf['Ticker'] = rows['Ticker']
-        tempdf['Date'] = tempdf['time'].apply (lambda x: x.split(' ')[0])
-        tempdf['Time'] = tempdf['time'].apply (lambda x: x.split(' ')[-1])
-        tempdf['Days'] = tempdf['Date'].apply (lambda x: datetime.strptime(x, "%d-%m-%Y").strftime('%A'))
-        tempdf['Name'] = 'NIFTY'
-        tempdf.rename(columns={'time' : 'Datetime'}, inplace=True)
+#         tempdf['Ticker'] = rows['Ticker']
+#         tempdf['Date'] = tempdf['time'].apply (lambda x: x.split(' ')[0])
+#         tempdf['Time'] = tempdf['time'].apply (lambda x: x.split(' ')[-1])
+#         tempdf['Days'] = tempdf['Date'].apply (lambda x: datetime.strptime(x, "%d-%m-%Y").strftime('%A'))
+#         tempdf['Name'] = 'NIFTY'
+#         tempdf.rename(columns={'time' : 'Datetime'}, inplace=True)
 
-        tempdf['Type'] = 'FUT'
-        tempdf['Strike_Price'] = None
-        tempdf['Expiry_Date'] = rows['Expiry']
+#         tempdf['Type'] = 'FUT'
+#         tempdf['Strike_Price'] = None
+#         tempdf['Expiry_Date'] = rows['Expiry']
 
-        tempdf.rename(columns={'into':'Open', 'inth':'High', 'intl':'Low', 'intc':'Close', 'oi':'OI', 'v':'Volume'}, inplace=True)
-        tempdf = tempdf[['Ticker', 'Date', 'Time', 'Days', 'Name','Datetime', 'Type', 'Strike_Price', 'Expiry_Date', 'Open', 'High', 'Low', 'Close', 'OI', 'Volume']]
-        tempdf['Time'] = tempdf['Time'].apply (lambda x: datetime.strptime(x, "%H:%M:%S").time())
+#         tempdf.rename(columns={'into':'Open', 'inth':'High', 'intl':'Low', 'intc':'Close', 'oi':'OI', 'v':'Volume'}, inplace=True)
+#         tempdf = tempdf[['Ticker', 'Date', 'Time', 'Days', 'Name','Datetime', 'Type', 'Strike_Price', 'Expiry_Date', 'Open', 'High', 'Low', 'Close', 'OI', 'Volume']]
+#         tempdf['Time'] = tempdf['Time'].apply (lambda x: datetime.strptime(x, "%H:%M:%S").time())
 
-        tempdf.sort_values(by='Time', inplace=True)
+#         tempdf.sort_values(by='Time', inplace=True)
 
-        futures_df = pd.concat([futures_df, tempdf])
+#         futures_df = pd.concat([futures_df, tempdf])
 
-print ('✅Futures Data Downloaded..!!')
-print ('------------------')
+# print ('✅Futures Data Downloaded..!!')
+# print ('------------------')
 
-if (len(spot_df) > 0) & (len(options_df) > 0) & (len(futures_df) > 0):
-    print ('All Data Seems Correctly Downloaded.')
-else:
-    print ('Check Data Manually (Error Found)..!')
+# if (len(spot_df) > 0) & (len(options_df) > 0) & (len(futures_df) > 0):
+#     print ('All Data Seems Correctly Downloaded.')
+# else:
+#     print ('Check Data Manually (Error Found)..!')
 
-final_df = pd.concat([spot_df, options_df, futures_df])
-
+# final_df = pd.concat([spot_df, options_df, futures_df])
+final_df = spot_df
 
 final_df['Time'] = final_df['Time'].astype(str)
 final_df['Datetime'] = final_df['Datetime'].astype(str)
@@ -232,7 +232,7 @@ file_name = datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%
 
 
 # 🔹 Load Google Service Account Credentials
-SERVICE_ACCOUNT_FILE = os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON")  # Path to your JSON key file
+SERVICE_ACCOUNT_FILE = "service_account.json"  # Path to your JSON key file
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 
 creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
