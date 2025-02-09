@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas pyotp requests tqdm zipfile36 os-sys io time
+          pip install pandas pyotp requests tqdm zipfile36 os-sys
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
           pip install NorenRestApiPy concurrent.futures threading warnings datetime
       
