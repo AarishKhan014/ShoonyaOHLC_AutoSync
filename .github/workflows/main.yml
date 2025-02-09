@@ -19,14 +19,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas pyotp requests tqdm zipfile36
+          pip install pandas pyotp requests tqdm zipfile36 os-sys io time
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-          pip install NorenRestApiPy threading warnings datetime
+          pip install NorenRestApiPy concurrent.futures threading warnings datetime
       
       - name: Create service_account.json file
         run: echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > service_account.json
 
-      - name: Run ohlc_to_drive.py
+      - name: Run Data_Download.py
         env:
           SHOONYA_USER: ${{ secrets.SHOONYA_USER }}
           SHOONYA_PWD: ${{ secrets.SHOONYA_PWD }}
@@ -35,4 +35,4 @@ jobs:
           SHOONYA_IMEI: ${{ secrets.SHOONYA_IMEI }}
           SHOONYA_QR: ${{ secrets.SHOONYA_QR }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-        run: python ohlc_to_drive.py
+        run: python Data_Download.py
