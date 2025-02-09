@@ -21,7 +21,7 @@ jobs:
         run: |
           pip install pandas pyotp requests tqdm zipfile36
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-          pip install NorenRestApiPy concurrent.futures threading warnings datetime
+          pip install NorenRestApiPy threading warnings datetime
       
       - name: Create service_account.json file
         run: echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > service_account.json
