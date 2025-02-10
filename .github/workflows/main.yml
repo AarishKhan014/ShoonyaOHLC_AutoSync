@@ -2,7 +2,7 @@ name: Automate Shoonya Data Download
 
 on:
   schedule:
-    - cron: "30 10 * * 1-5"  # Runs at 4:00 PM IST (14:30 UTC)
+    - cron: "38 10 * * 1-5"  # Runs at 4:15 PM IST (10:45 AM UTC)
   workflow_dispatch:  # Enables manual execution
 
 jobs:
