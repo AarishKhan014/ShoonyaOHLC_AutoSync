@@ -21,7 +21,7 @@ warnings.filterwarnings('ignore')
 
 # def fetch_options(start_time, end_time):
 #Logging
-# usercred = pd.read_excel(rf'C:\My Data\Python Work\Shoonya Api\\Login_Cred(Himanshu).xlsx')
+# usercred = pd.read_excel(rf'C:\My Data\Api\\Login_Cred(Aarish).xlsx')
 
 USER = os.getenv("SHOONYA_USER")
 PWD = os.getenv("SHOONYA_PWD")
