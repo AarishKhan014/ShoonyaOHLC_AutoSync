@@ -226,7 +226,7 @@ final_df["Time"] = (final_df["Time"].str.slice(0, 6) + "59").astype(str)
 final_df["Datetime"] = (final_df["Datetime"].str.slice(0, 17) + "59").astype(str)
 
 
-file_name = datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%m%Y')
+file_name = f"NIFTY_{datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%m%Y')}"
 # final_df.to_csv(rf'C:\My Data\Python Work\Historical Data\Nifty Cleaned (RAW)\2025\\NIFTY_{file_name}.csv', index=False)
 
 
