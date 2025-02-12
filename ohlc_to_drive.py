@@ -104,23 +104,7 @@ print (f'Size = {len(spot_df)}Rows')
 print ('------------------')
 
 #Downloading Master Symbols
-url = "https://api.shoonya.com/NFO_symbols.txt.zip"
-directory = rf"C:\My Data\Python Work\Historical Data"
-
-os.makedirs(directory, exist_ok=True)
-
-zip_filepath = os.path.join(directory, "file.zip")
-with open(zip_filepath, "wb") as f:
-    f.write(requests.get(url).content)
-
-with zipfile.ZipFile(zip_filepath, "r") as zip_ref:
-    zip_ref.extractall(directory)
-
-file = pd.read_csv(os.path.join(directory, "NFO_symbols.txt"))
-
-os.remove(zip_filepath)
-os.remove(os.path.join(directory, "NFO_symbols.txt"))
-
+file = pd.read_csv("https://api.shoonya.com/NFO_symbols.txt.zip", compression='zip', engine='python', delimiter=',')
 file = file[file['Symbol'] == 'NIFTY']
 file['Expiry'] = file['Expiry'].apply (lambda x: datetime.strptime(x, "%d-%b-%Y"))
 
