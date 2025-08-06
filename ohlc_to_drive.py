@@ -15,8 +15,6 @@ import io
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
-import warnings
-warnings.filterwarnings('ignore')
 
 
 # def fetch_options(start_time, end_time):
@@ -251,3 +249,4 @@ print ('------------------')
 print ('✅Final Data Merged And Stored In Specified Locations..!')
 
     # return final_df
+
