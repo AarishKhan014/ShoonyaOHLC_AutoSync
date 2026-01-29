@@ -39,3 +39,17 @@ The workflow is fully automated using a **GitHub Actions cron job**, which trigg
 ```bash
 git clone https://github.com/AarishKhan014/ShoonyaOHLC_AutoSync.git
 cd ShoonyaOHLC_AutoSync
+```
+
+2. Install required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure your Shoonya API credentials in config.py or .env
+4. Set up Google Drive API credentials and share your folder with the service account.
+
+## License
+
+MIT License © Aarish Khan
