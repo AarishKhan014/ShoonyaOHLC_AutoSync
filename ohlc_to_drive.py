@@ -90,6 +90,7 @@ if ret is not None:
     # Update values
     cred['Access_token'] = acc_tok
     cred['Account_ID'] = actid
+    print (acc_tok, actid)
 else:
     print("Failed to retrieve access token.")
 
