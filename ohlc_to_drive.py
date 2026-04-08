@@ -84,6 +84,7 @@ api = NorenApiPy()
 
 
 ret = api.getAccessToken(code, cred['Secret_Code'], cred['client_id'], cred['UID'])
+print (ret)
 if ret is not None:
     acc_tok, usrid, ref_tok, actid = ret
     print(f"""\nAccess token is : {acc_tok} \nRefresh token is : {ref_tok} \nUser ID token is : {usrid} \nAccount ID is : {actid} \n""")
