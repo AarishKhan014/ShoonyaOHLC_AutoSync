@@ -36,5 +36,4 @@ jobs:
           cat service_account.json  # Debug: Check if the file is created
 
       - name: Run ohlc_to_drive.py
-        env:
         run: python ohlc_to_drive.py
