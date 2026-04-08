@@ -18,6 +18,13 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 
 
+import requests
+
+public_ip = requests.get("https://api.ipify.org").text
+
+print("Public IP Address:", public_ip)
+
+
 # def fetch_options(start_time, end_time):
 #Logging
 # usercred = pd.read_excel(rf'C:\My Data\Api\\Login_Cred(Aarish).xlsx')
