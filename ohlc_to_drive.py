@@ -1,5 +1,5 @@
-#Importing necessary modules
 from NorenRestApiPy.NorenApi import NorenApi
+from playwright.sync_api import sync_playwright
 from threading import Timer
 import pandas as pd
 import time
@@ -10,6 +10,7 @@ import requests
 from tqdm import tqdm
 import sys
 import zipfile
+import urllib.parse
 import os
 import io
 from googleapiclient.discovery import build
@@ -21,28 +22,82 @@ from google.oauth2 import service_account
 #Logging
 # usercred = pd.read_excel(rf'C:\My Data\Api\\Login_Cred(Aarish).xlsx')
 
-USER = os.getenv("SHOONYA_USER")
-PWD = os.getenv("SHOONYA_PWD")
-VC = os.getenv("SHOONYA_VC")
-APP_KEY = os.getenv("SHOONYA_APP_KEY")
-IMEI = os.getenv("SHOONYA_IMEI")
-QR_SECRET = os.getenv("SHOONYA_QR")
-FACTOR2 = pyotp.TOTP(QR_SECRET).now()
+USER = "FA77222"
+PWD = "Aarish@12378"
+QR_SECRET_OTP = '2S4IT4IQVY76J762P73HL4U43QVH6AHB' #QR CODE
+SECRET_CODE = 'HIQxKx4hKMzKKgmiGPcnkjbYcOIRmmNNlg7ffglImrRcNx43Z9RzINXZICRChiHd' #API KEY
+
+LOGIN_URL = "https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key=FA77222_U&route_to=FA77222"
 
 
-#Defining Class, Modules And Login
-class ShoonyaApiPy(NorenApi):
+def get_auth_code():
+    # Generate current OTP dynamically
+    totp = pyotp.TOTP(QR_SECRET_OTP).now()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)  # headless=False so you can watch the browser
+        page = browser.new_page()
+        page.goto(LOGIN_URL)
+
+        # Fill login form
+        page.fill('#lgnusrid', USER)
+        page.fill('#lgnpwd', PWD)
+        page.fill('#lgnotp', totp)
+
+        # Click login button
+        page.click('.lgnBtnClss')
+
+        # Wait for redirect to URL containing "auth_code"
+        page.wait_for_url("**code**", timeout=15000)  # 15 seconds max
+
+        # Get the final URL
+        final_url = page.url
+
+        # Parse the URL and extract the "code" parameter
+        parsed = urllib.parse.urlparse(final_url)
+        query_params = urllib.parse.parse_qs(parsed.query)
+        auth_code = query_params.get('code', [None])[0]
+
+        browser.close()
+        return auth_code
+
+# if __name__ == "__main__":
+code = get_auth_code()
+print("✅ Auth code Generated:", code)
+
+
+
+cred = {
+    'client_id': f'{USER}_U',
+    'Secret_Code': SECRET_CODE,
+    'UID': USER,
+    'oauth_url': f'https://api.shoonya.com/NorenWClient/authenticate/{USER}_U'
+}
+
+
+
+class NorenApiPy(NorenApi):
     def __init__(self):
-        NorenApi.__init__(self, host='https://api.shoonya.com/NorenWClientTP/', websocket='wss://api.shoonya.com/NorenWSTP/')
-        global api
-        api = self
+        super().__init__(host='https://api.shoonya.com/NorenWClientAPI/', websocket='wss://api.shoonya.com/NorenWS/')
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
-api = ShoonyaApiPy()
-ret = api.login(userid=USER, password=PWD, twoFA=FACTOR2, vendor_code=VC, api_secret=APP_KEY, imei=IMEI)
+api = NorenApiPy()
+
+
+ret = api.getAccessToken(code, cred['Secret_Code'], cred['client_id'], cred['UID'])
+if ret is not None:
+    acc_tok, usrid, ref_tok, actid = ret
+    print(f"""\nAccess token is : {acc_tok} \nRefresh token is : {ref_tok} \nUser ID token is : {usrid} \nAccount ID is : {actid} \n""")
+    # Update values
+    cred['Access_token'] = acc_tok
+    cred['Account_ID'] = actid
+else:
+    print("Failed to retrieve access token.")
+
+# print(cred)
+injected_headers = api.injectOAuthHeader(cred['Access_token'],cred['UID'],cred['Account_ID'])
 
 print("✅ Successfully logged in to Shoonya API")
+
 
 def get_time (time_string):
     data = time.strptime(time_string, "%Y-%m-%d %H:%M:%S")
@@ -96,10 +151,12 @@ print ('------------------')
 print ('------------------')
 print ('------------------')
 print ('------------------')
+
 print (f"***********Working For Date {str(start_time)[6:]}-{str(start_time)[4:6]}-{str(start_time)[:4]}***********")
 print (f'✅Spot Downloaded..!!')
 print (f'Size = {len(spot_df)}Rows')
 print ('------------------')
+
 
 #Downloading Master Symbols
 file = pd.read_csv("https://api.shoonya.com/NFO_symbols.txt.zip", compression='zip', engine='python', delimiter=',')
@@ -209,7 +266,7 @@ final_df["Datetime"] = (final_df["Datetime"].str.slice(0, 17) + "59").astype(str
 
 
 file_name = f"NIFTY_{datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%m%Y')}"
-# final_df.to_csv(rf'C:\My Data\Python Work\Historical Data\Nifty Cleaned (RAW)\2025\\NIFTY_{file_name}.csv', index=False)
+final_df.to_csv(rf'{file_name}.csv', index=False)
 
 
 # 🔹 Load Google Service Account Credentials
@@ -247,6 +304,3 @@ upload_dataframe_to_drive(final_df, f"{file_name}.csv")
 
 print ('------------------')
 print ('✅Final Data Merged And Stored In Specified Locations..!')
-
-    # return final_df
-
