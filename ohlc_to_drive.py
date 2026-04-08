@@ -1,4 +1,4 @@
-from NorenRestApiPy import NorenApi
+from NorenApi import NorenApi
 from playwright.sync_api import sync_playwright
 from threading import Timer
 import pandas as pd
