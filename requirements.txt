@@ -2,6 +2,7 @@
 pandas
 pyotp
 requests
+NorenRestApiOAuth
 playwright
 tqdm
 zipfile36
