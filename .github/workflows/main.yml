@@ -2,42 +2,40 @@ name: Automate Shoonya Data Download
 
 on:
   schedule:
-    - cron: '30 10 * * 1-5'  # Runs at 4:00 PM IST (10:50 AM UTC), Monday to Friday
-  workflow_dispatch:  # Enables manual execution
+    - cron: '30 10 * * 1-5'   # Monday to Friday at 4:00 PM IST
+  workflow_dispatch:          # Manual trigger
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.9'
+        uses: actions/checkout@v4
 
-      - name: Cache Python Dependencies
-        uses: actions/cache@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          python-version: '3.12'
+          cache: 'pip'                    # Better caching
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          playwright install chromium
+
+      - name: Install Playwright Browser + Dependencies
+        run: |
+          python -m playwright install chromium --with-deps
 
       - name: Create Google Service Account File
         run: |
           echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > service_account.json
-          cat service_account.json  # Debug: Check if the file is created
+          ls -l service_account.json   # Debug
+          cat service_account.json | head -c 200   # Partial debug (don't print full key)
 
       - name: Run ohlc_to_drive.py
-      env:
+        env:
           SHOONYA_USER: ${{ secrets.SHOONYA_USER }}
           SHOONYA_PWD: ${{ secrets.SHOONYA_PWD }}
           SHOONYA_QR: ${{ secrets.SHOONYA_QR }}
