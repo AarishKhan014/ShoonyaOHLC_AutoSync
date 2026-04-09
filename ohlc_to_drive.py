@@ -29,7 +29,7 @@ SECRET_CODE = 'HIQxKx4hKMzKKgmiGPcnkjbYcOIRmmNNlg7ffglImrRcNx43Z9RzINXZICRChiHd'
 LOGIN_URL = "https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key=FA77222_U&route_to=FA77222"
 LOGIN_LINK_FOR_IP_UPDATE = "https://trade.shoonya.com/"
 
-if not all([USER, PWD, QR_SECRET]):
+if not all([USER, PWD, QR_SECRET_OTP]):
     raise ValueError("Missing secrets! Please set SHOONYA_USER, SHOONYA_PASSWORD, SHOONYA_TOTP_SECRET in GitHub Secrets.")
 
 current_ip = requests.get("https://api.ipify.org").text.strip()
