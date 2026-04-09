@@ -18,16 +18,8 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 
 
-import requests
 
-public_ip = requests.get("https://api.ipify.org").text
-
-print("Public IP Address:", public_ip)
-
-
-# def fetch_options(start_time, end_time):
-#Logging
-# usercred = pd.read_excel(rf'C:\My Data\Api\\Login_Cred(Aarish).xlsx')
+current_ip = requests.get("https://api.ipify.org").text
 
 USER = "FA77222"
 PWD = "Aarish@12378"
@@ -35,7 +27,95 @@ QR_SECRET_OTP = '2S4IT4IQVY76J762P73HL4U43QVH6AHB' #QR CODE
 SECRET_CODE = 'HIQxKx4hKMzKKgmiGPcnkjbYcOIRmmNNlg7ffglImrRcNx43Z9RzINXZICRChiHd' #API KEY
 
 LOGIN_URL = "https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key=FA77222_U&route_to=FA77222"
+LOGIN_LING_FOR_IP_UPDATE = "https://trade.shoonya.com/"
 
+print (f"Updating {current_ip} To The Shoonya Account..!")
+
+def get_auth_code():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)  # headless=False so you can watch the browser
+        page = browser.new_page()
+        page.goto(LOGIN_URL)
+
+        page.wait_for_url("**#**", timeout=15000)
+        page.wait_for_timeout(5000)  # 15 seconds max
+
+        # Fill login form
+        page.keyboard.type(USER)
+
+        page.keyboard.press("Tab")
+        page.keyboard.type(PWD)
+
+        page.keyboard.press("Tab")
+        totp = pyotp.TOTP(QR_SECRET).now()
+        page.keyboard.type(totp)
+
+        page.keyboard.press("Tab")   # click near label
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(10000)
+
+        frames = page.frames
+        print(f"Total frames: {len(frames)}")
+        for i, frame in enumerate(frames):
+            if frame.locator('button:has-text("Accept")').count() > 0:
+                frame.locator('button:has-text("Accept")').first.click()
+                break
+        
+        page.wait_for_timeout(2000)
+
+        for i in range(4):
+            page.keyboard.press("Tab")   # Authentication Cancel
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+
+        for i in range(10):
+            page.keyboard.press("Tab")   # Go To Profile
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+
+        for i in range(22):
+            page.keyboard.press("Tab")   # Go to API Settings
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+
+        for i in range(4):
+            page.keyboard.press("Tab")   # Fill Current IP
+        page.keyboard.press("Control+A")
+        page.keyboard.type(current_ip)
+
+        page.wait_for_timeout(2000)
+
+        for i in range(3):
+            page.keyboard.press("Tab")   # Save Current IP
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+
+        for i in range(2):
+            page.keyboard.press("Tab")   # Close Current IP Window
+        page.keyboard.press("Enter")
+        print ("✅ IP Updated Successfully..!")
+        page.wait_for_timeout(2000)
+
+        for i in range(11):
+            page.keyboard.press("Tab")   # Go Back To Settings
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+
+        for i in range(23):
+            page.keyboard.press("Tab")   # Logout
+        page.keyboard.press("Enter")
+
+        page.wait_for_timeout(2000)
+        browser.close()
+
+
+print ("Now Generating Authentication Code.!")
 
 def get_auth_code():
     # Generate current OTP dynamically
@@ -70,7 +150,7 @@ def get_auth_code():
 
 # if __name__ == "__main__":
 code = get_auth_code()
-print("✅ Auth code Generated:", code)
+print("✅ Authentication code Generated:", code)
 
 
 
