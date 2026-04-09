@@ -120,7 +120,6 @@ def ip_updater(max_retries=10):
 
                 page.wait_for_timeout(2000)
 
-                print("Copying IP using Ctrl+A + Ctrl+C...", flush=True)
                 page.keyboard.press("Control+A")
                 page.wait_for_timeout(1000)
                 page.keyboard.press("Control+C")
