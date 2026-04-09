@@ -27,94 +27,146 @@ QR_SECRET_OTP = '2S4IT4IQVY76J762P73HL4U43QVH6AHB' #QR CODE
 SECRET_CODE = 'HIQxKx4hKMzKKgmiGPcnkjbYcOIRmmNNlg7ffglImrRcNx43Z9RzINXZICRChiHd' #API KEY
 
 LOGIN_URL = "https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key=FA77222_U&route_to=FA77222"
-LOGIN_LING_FOR_IP_UPDATE = "https://trade.shoonya.com/"
+LOGIN_LINK_FOR_IP_UPDATE = "https://trade.shoonya.com/"
 
-print (f"Updating {current_ip} To The Shoonya Account..!")
+if not all([USER, PWD, QR_SECRET]):
+    raise ValueError("Missing secrets! Please set SHOONYA_USER, SHOONYA_PASSWORD, SHOONYA_TOTP_SECRET in GitHub Secrets.")
+
+current_ip = requests.get("https://api.ipify.org").text.strip()
+print(f"Current Public IP: {current_ip}")
+print("Updating IP on Shoonya Account...")
+
 
 def ip_updater():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)  # headless=False so you can watch the browser
-        page = browser.new_page()
-        page.goto(LOGIN_URL)
+        # Launch browser (headless=True for GitHub Actions)
+        browser = p.chromium.launch(headless=False)
 
-        # page.wait_for_url("**#**", timeout=15000)
-        page.wait_for_timeout(15000)  # 15 seconds max
+        # Important: Create context and grant clipboard permissions
+        context = browser.new_context(
+            permissions=["clipboard-read", "clipboard-write"]
+        )
+        
+        # Extra safe: Grant permission specifically for Shoonya domain
+        context.grant_permissions(
+            ["clipboard-read", "clipboard-write"],
+            origin=LOGIN_LINK_FOR_IP_UPDATE
+        )
 
-        # Fill login form
+        page = context.new_page()
+
+        print("Navigating to login page...")
+        page.goto(LOGIN_LINK_FOR_IP_UPDATE)
+        page.wait_for_timeout(20000)
+
+        # Login form
+        print("Entering credentials...")
         page.keyboard.type(USER)
-
         page.keyboard.press("Tab")
         page.keyboard.type(PWD)
-
         page.keyboard.press("Tab")
-        totp = pyotp.TOTP(QR_SECRET_OTP).now()
-        page.keyboard.type(totp)
 
-        page.keyboard.press("Tab")   # click near label
+        totp = pyotp.TOTP(QR_SECRET_OTP).now()
+        print(f"Generated TOTP: {totp}")
+        page.keyboard.type(totp)
+        page.keyboard.press("Tab")
         page.keyboard.press("Enter")
 
-        page.wait_for_timeout(10000)
+        page.wait_for_timeout(15000)  # Increased wait for login
 
-        frames = page.frames
-        print(f"Total frames: {len(frames)}")
-        for i, frame in enumerate(frames):
+        # Handle "Accept" button if appears in any frame
+        for frame in page.frames:
             if frame.locator('button:has-text("Accept")').count() > 0:
                 frame.locator('button:has-text("Accept")').first.click()
+                print("Clicked Accept button")
                 break
-        
+
+        page.wait_for_timeout(5000)
+
+        # Navigation using keyboard (as per your original logic)
+        print("Navigating to Profile → API Settings...")
+        for _ in range(4):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Cancel authentication if any
+
+        page.wait_for_timeout(3000)
+
+        for _ in range(10):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Go to Profile
+
+        page.wait_for_timeout(3000)
+
+        for _ in range(22):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Go to API Settings
+
+        page.wait_for_timeout(3000)
+
+        # ================== Read Old IP ==================
+        print("Reading previously whitelisted (Old) IP...")
+
+        # Move to the IP input field
+        for _ in range(4):
+            page.keyboard.press("Tab")
+
+        page.wait_for_timeout(1500)   # Small wait after focusing the field
+
+        # Select all text (Ctrl + A) and Copy (Ctrl + C)
+        print("Selecting and copying old IP via keyboard...")
+        page.keyboard.press("Control+A")
+        page.wait_for_timeout(800)
+        page.keyboard.press("Control+C")
+        page.wait_for_timeout(1200)   # Wait for clipboard to update
+
+        # Read from clipboard
+        try:
+            old_ip = page.evaluate("() => navigator.clipboard.readText()").strip()
+            if not old_ip:
+                old_ip = "Empty or Unable to read"
+            print(f"✅ Old IP found: {old_ip}")
+        except Exception as e:
+            print(f"❌ Could not read from clipboard: {e}")
+            old_ip = "Unable to read (clipboard error)"
+
         page.wait_for_timeout(2000)
 
-        for i in range(4):
-            page.keyboard.press("Tab")   # Authentication Cancel
-        page.keyboard.press("Enter")
-
-        page.wait_for_timeout(2000)
-
-        for i in range(10):
-            page.keyboard.press("Tab")   # Go To Profile
-        page.keyboard.press("Enter")
-
-        page.wait_for_timeout(2000)
-
-        for i in range(22):
-            page.keyboard.press("Tab")   # Go to API Settings
-        page.keyboard.press("Enter")
-
-        page.wait_for_timeout(2000)
-
-        for i in range(4):
-            page.keyboard.press("Tab")   # Fill Current IP
+        # ================== Update New IP ==================
+        print(f"Updating IP from '{old_ip}' → '{current_ip}'")
         page.keyboard.press("Control+A")
         page.keyboard.type(current_ip)
 
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(3000)
 
-        for i in range(3):
-            page.keyboard.press("Tab")   # Save Current IP
+        for _ in range(3):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Save
+
+        page.wait_for_timeout(3000)
+
+        print("✅ IP Updated Successfully!")
+
+        # Logout sequence
+        for _ in range(2):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Close window
+
+        page.wait_for_timeout(3000)
+
+        for _ in range(11):
+            page.keyboard.press("Tab")
         page.keyboard.press("Enter")
 
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(3000)
 
-        for i in range(2):
-            page.keyboard.press("Tab")   # Close Current IP Window
-        page.keyboard.press("Enter")
-        print ("✅ IP Updated Successfully..!")
-        page.wait_for_timeout(2000)
+        for _ in range(23):
+            page.keyboard.press("Tab")
+        page.keyboard.press("Enter")   # Logout
 
-        for i in range(11):
-            page.keyboard.press("Tab")   # Go Back To Settings
-        page.keyboard.press("Enter")
-
-        page.wait_for_timeout(2000)
-
-        for i in range(23):
-            page.keyboard.press("Tab")   # Logout
-        page.keyboard.press("Enter")
-
-        page.wait_for_timeout(2000)
         browser.close()
 
 ip_updater()
+
 
 print ("Now Generating Authentication Code.!")
 
