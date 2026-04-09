@@ -40,7 +40,7 @@ print("Updating IP on Shoonya Account...")
 def ip_updater():
     with sync_playwright() as p:
         # Launch browser (headless=True for GitHub Actions)
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
 
         # Important: Create context and grant clipboard permissions
         context = browser.new_context(
