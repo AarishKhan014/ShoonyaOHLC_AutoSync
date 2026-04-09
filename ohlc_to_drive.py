@@ -37,8 +37,8 @@ def ip_updater():
         page = browser.new_page()
         page.goto(LOGIN_URL)
 
-        page.wait_for_url("**#**", timeout=15000)
-        page.wait_for_timeout(5000)  # 15 seconds max
+        # page.wait_for_url("**#**", timeout=15000)
+        page.wait_for_timeout(15000)  # 15 seconds max
 
         # Fill login form
         page.keyboard.type(USER)
