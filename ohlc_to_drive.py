@@ -47,7 +47,7 @@ def ip_updater():
         page.keyboard.type(PWD)
 
         page.keyboard.press("Tab")
-        totp = pyotp.TOTP(QR_SECRET).now()
+        totp = pyotp.TOTP(QR_SECRET_OTP).now()
         page.keyboard.type(totp)
 
         page.keyboard.press("Tab")   # click near label
