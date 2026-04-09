@@ -18,6 +18,10 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 
 
+# Force unbuffered output
+sys.stdout.reconfigure(line_buffering=True)
+# Ya phir purana tarika (Python 3.7+)
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 current_ip = requests.get("https://api.ipify.org").text
 
@@ -34,8 +38,9 @@ if not all([USER, PWD, QR_SECRET_OTP]):
 
 current_ip = requests.get("https://api.ipify.org").text.strip()
 print(f"Current Public IP: {current_ip}")
+sys.stdout.flush()
 print("Updating IP on Shoonya Account...")
-
+sys.stdout.flush()
 
 def ip_updater():
     with sync_playwright() as p:
@@ -68,6 +73,7 @@ def ip_updater():
 
         totp = pyotp.TOTP(QR_SECRET_OTP).now()
         print(f"Generated TOTP: {totp}")
+        sys.stdout.flush()
         page.keyboard.type(totp)
         page.keyboard.press("Tab")
         page.keyboard.press("Enter")
@@ -79,12 +85,14 @@ def ip_updater():
             if frame.locator('button:has-text("Accept")').count() > 0:
                 frame.locator('button:has-text("Accept")').first.click()
                 print("Clicked Accept button")
+                sys.stdout.flush()
                 break
 
         page.wait_for_timeout(5000)
 
         # Navigation using keyboard (as per your original logic)
         print("Navigating to Profile → API Settings...")
+        sys.stdout.flush()
         for _ in range(4):
             page.keyboard.press("Tab")
         page.keyboard.press("Enter")   # Cancel authentication if any
@@ -105,6 +113,7 @@ def ip_updater():
 
         # ================== Read Old IP ==================
         print("Reading previously whitelisted (Old) IP...")
+        sys.stdout.flush()
 
         # Move to the IP input field
         for _ in range(4):
@@ -112,8 +121,6 @@ def ip_updater():
 
         page.wait_for_timeout(1500)   # Small wait after focusing the field
 
-        # Select all text (Ctrl + A) and Copy (Ctrl + C)
-        print("Selecting and copying old IP via keyboard...")
         page.keyboard.press("Control+A")
         page.wait_for_timeout(800)
         page.keyboard.press("Control+C")
@@ -125,14 +132,17 @@ def ip_updater():
             if not old_ip:
                 old_ip = "Empty or Unable to read"
             print(f"✅ Old IP found: {old_ip}")
+            sys.stdout.flush()
         except Exception as e:
             print(f"❌ Could not read from clipboard: {e}")
+            sys.stdout.flush()
             old_ip = "Unable to read (clipboard error)"
 
         page.wait_for_timeout(2000)
 
         # ================== Update New IP ==================
         print(f"Updating IP from '{old_ip}' → '{current_ip}'")
+        sys.stdout.flush()
         page.keyboard.press("Control+A")
         page.keyboard.type(current_ip)
 
@@ -145,6 +155,7 @@ def ip_updater():
         page.wait_for_timeout(3000)
 
         print("✅ IP Updated Successfully!")
+        sys.stdout.flush()
 
         # Logout sequence
         for _ in range(2):
@@ -169,6 +180,9 @@ ip_updater()
 
 
 print ("Now Generating Authentication Code.!")
+sys.stdout.flush()
+
+time.sleep(2)
 
 def get_auth_code():
     # Generate current OTP dynamically
@@ -204,6 +218,7 @@ def get_auth_code():
 # if __name__ == "__main__":
 code = get_auth_code()
 print("✅ Authentication code Generated:", code)
+sys.stdout.flush()
 
 
 
