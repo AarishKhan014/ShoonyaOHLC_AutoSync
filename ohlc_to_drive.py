@@ -21,12 +21,12 @@ from google.oauth2 import service_account
 
 current_ip = requests.get("https://api.ipify.org").text
 
-USER = "FA77222"
-PWD = "Aarish@12378"
-QR_SECRET_OTP = '2S4IT4IQVY76J762P73HL4U43QVH6AHB' #QR CODE
-SECRET_CODE = 'HIQxKx4hKMzKKgmiGPcnkjbYcOIRmmNNlg7ffglImrRcNx43Z9RzINXZICRChiHd' #API KEY
+USER = os.getenv("SHOONYA_USER")
+PWD = os.getenv("SHOONYA_PWD")
+QR_SECRET_OTP = os.getenv("SHOONYA_QR") #QR CODE
+SECRET_CODE = os.getenv("SHOONYA_APP_KEY") #API/APP KEY
 
-LOGIN_URL = "https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key=FA77222_U&route_to=FA77222"
+LOGIN_URL = f"https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key={USER}_U&route_to={USER}"
 LOGIN_LINK_FOR_IP_UPDATE = "https://trade.shoonya.com/"
 
 if not all([USER, PWD, QR_SECRET_OTP]):
