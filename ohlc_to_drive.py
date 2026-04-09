@@ -429,7 +429,7 @@ print ('------------------')
 # final_df["Datetime"] = (final_df["Datetime"].str.slice(0, 17) + "59").astype(str)
 
 
-# file_name = f"NIFTY_{datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%m%Y')}"
+file_name = f"NIFTY_{datetime.strftime(datetime.strptime(str(start_time), '%Y%m%d'), '%d%m%Y')}"
 
 
 # 🔹 Load Google Service Account Credentials
