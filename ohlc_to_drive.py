@@ -31,7 +31,7 @@ QR_SECRET_OTP = os.getenv("SHOONYA_QR") #QR CODE
 SECRET_CODE = os.getenv("SHOONYA_APP_KEY") #API/APP KEY
 
 LOGIN_URL = f"https://trade.shoonya.com/OAuthlogin/investor-entry-level/login?api_key={USER}_U&route_to={USER}"
-LOGIN_LINK_FOR_IP_UPDATE = "https://trade.shoonya.com/"
+LOGIN_LINK_FOR_IP_UPDATE = "https://trade.shoonya.com/#/"
 
 if not all([USER, PWD, QR_SECRET_OTP]):
     raise ValueError("Missing secrets! Please set SHOONYA_USER, SHOONYA_PASSWORD, SHOONYA_TOTP_SECRET in GitHub Secrets.")
