@@ -31,7 +31,7 @@ LOGIN_LING_FOR_IP_UPDATE = "https://trade.shoonya.com/"
 
 print (f"Updating {current_ip} To The Shoonya Account..!")
 
-def get_auth_code():
+def ip_updater():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)  # headless=False so you can watch the browser
         page = browser.new_page()
@@ -114,6 +114,7 @@ def get_auth_code():
         page.wait_for_timeout(2000)
         browser.close()
 
+ip_updater()
 
 print ("Now Generating Authentication Code.!")
 
