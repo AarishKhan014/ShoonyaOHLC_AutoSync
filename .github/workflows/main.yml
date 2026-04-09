@@ -37,4 +37,9 @@ jobs:
           cat service_account.json  # Debug: Check if the file is created
 
       - name: Run ohlc_to_drive.py
+      env:
+          SHOONYA_USER: ${{ secrets.SHOONYA_USER }}
+          SHOONYA_PWD: ${{ secrets.SHOONYA_PWD }}
+          SHOONYA_QR: ${{ secrets.SHOONYA_QR }}
+          SHOONYA_APP_KEY: ${{ secrets.SHOONYA_APP_KEY }}
         run: python ohlc_to_drive.py
