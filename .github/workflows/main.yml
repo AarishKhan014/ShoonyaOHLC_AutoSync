@@ -2,8 +2,12 @@ name: Automate Shoonya Data Download
 
 on:
   schedule:
-    - cron: '30 10 * * 1-5'   # Monday to Friday at 4:00 PM IST
-  workflow_dispatch:          # Manual trigger
+    # Monday to Friday at 4:00 PM IST (10:30 UTC)
+    # Timezone support added in March 2026 — safe & clean
+    - cron: '30 10 * * 1-5'
+      timezone: 'Asia/Kolkata'
+
+  workflow_dispatch:        # Manual trigger ke liye (test ke liye bahut useful)
 
 jobs:
   run-script:
@@ -17,7 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'                    # Better caching
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -31,8 +35,13 @@ jobs:
       - name: Create Google Service Account File
         run: |
           echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > service_account.json
-          ls -l service_account.json   # Debug
-          cat service_account.json | head -c 200   # Partial debug (don't print full key)
+          ls -l service_account.json
+          echo "Service account file created successfully"
+
+      - name: Print current time (for debugging)
+        run: |
+          echo "Current UTC time : $(date -u)"
+          echo "Current IST time : $(TZ=Asia/Kolkata date)"
 
       - name: Run ohlc_to_drive.py
         env:
