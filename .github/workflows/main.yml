@@ -2,17 +2,15 @@ name: Automate Shoonya Data Download
 
 on:
   schedule:
-    # Monday to Friday at 4:00 PM IST (10:30 UTC)
-    # Timezone support added in March 2026 — safe & clean
-    - cron: '30 10 * * 1-5'
-      timezone: 'Asia/Kolkata'
-
-  workflow_dispatch:        # Manual trigger ke liye (test ke liye bahut useful)
+    # Monday to Friday at 4:15 PM IST
+    # 4:15 PM IST = 10:45 UTC
+    - cron: '45 10 * * 1-5'
+  
+  workflow_dispatch: # Allows manual trigger for testing
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
