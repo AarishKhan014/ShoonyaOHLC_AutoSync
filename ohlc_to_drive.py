@@ -42,7 +42,7 @@ sys.stdout.flush()
 print("Updating IP on Shoonya Account...")
 sys.stdout.flush()
 
-def ip_updater(max_retries=10):
+def ip_updater(max_retries=5):
     old_ip = ""
     attempt = 1
 
@@ -283,11 +283,11 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 #Modify Dates
-# start_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
-# end_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
+start_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
+end_time = datetime.strftime((datetime.strptime(str(date.today()), "%Y-%m-%d")), "%Y%m%d")
 
-start_time = 20260427
-end_time = 20260427
+# start_time = 20260427
+# end_time = 20260427
 
 st = get_time(f'{str(start_time)[:4]}-{str(start_time)[4:6]}-{str(start_time)[6:]} 01:00:00')
 et = get_time(f'{str(end_time)[:4]}-{str(end_time)[4:6]}-{str(end_time)[6:]} 23:59:00')
