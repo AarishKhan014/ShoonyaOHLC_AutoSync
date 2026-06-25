@@ -20,7 +20,12 @@ The workflow is fully automated using a **GitHub Actions cron job**, which trigg
 - ✅ Automatic daily updates post-market close  
 - ✅ Saves data to Google Drive in an organized format  
 - ✅ Fully automated via GitHub cron job  
-- ✅ Ready for backtesting trading strategies  
+- ✅ Ready for backtesting trading strategies
+
+## New Features Following Recent Exchange-Mandated Static IP Restrictions
+-✅ Auto-updates broker whitelisted IP on every run to bypass static IP restrictions
+-✅ Headless browser login automation for seamless credential handling
+-✅ Ensures reliable data sync even with dynamic GitHub Actions IPs
 
 ---
 
