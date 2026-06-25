@@ -23,9 +23,10 @@ The workflow is fully automated using a **GitHub Actions cron job**, which trigg
 - ✅ Ready for backtesting trading strategies
 
 ## New Features Following Recent Exchange-Mandated Static IP Restrictions
--✅ Auto-updates broker whitelisted IP on every run to bypass static IP restrictions
--✅ Headless browser login automation for seamless credential handling
--✅ Ensures reliable data sync even with dynamic GitHub Actions IPs
+
+- ✅ Auto-updates broker whitelisted IP on every run to bypass static IP restrictions
+- ✅ Headless browser login automation for seamless credential handling
+- ✅ Ensures reliable data sync even with dynamic GitHub Actions IPs 
 
 ---
 
